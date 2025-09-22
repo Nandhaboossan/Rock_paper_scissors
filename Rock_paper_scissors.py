@@ -5,23 +5,16 @@ with the game showing who won each round.
 Add a score counter that tracks player and computer wins, 
 and allow the game to continue until the player types “quit”.
 """
+
+# --- Tkinter GUI version ---
 import random
-import sys 
-import time
-import os
-from colorama import Fore, Style, init
-init(autoreset=True)
-os.system('cls' if os.name == 'nt' else 'clear')
+import tkinter as tk
+from tkinter import messagebox
+
 choices = ['rock', 'paper', 'scissors']
-player_score = 0    
+player_score = 0
 computer_score = 0
 rounds_played = 0
-def print_slow(str):
-    for letter in str:
-        sys.stdout.write(letter)
-        sys.stdout.flush()
-        time.sleep(0.05)
-    print()
 
 def get_computer_choice():
     return random.choice(choices)
@@ -39,34 +32,48 @@ def determine_winner(player, computer):
         computer_score += 1
         return "Computer wins!"
 
-def display_scores():
-    print(Fore.GREEN + f"Player Score: {player_score}" + Style.RESET_ALL)
-    print(Fore.RED + f"Computer Score: {computer_score}" + Style.RESET_ALL)
-    print(Fore.YELLOW + f"Rounds Played: {rounds_played}" + Style.RESET_ALL)
-    print("-" * 30)
-print_slow("Welcome to Rock, Paper, Scissors!")
-print_slow("Type 'rock', 'paper', or 'scissors' to play.")
-print_slow("Type 'quit' to exit the game.")
-print("-" * 30)
-
-while True:
-    player_choice = input("Your choice: ").lower()
-    if player_choice == 'r':
-        player_choice = 'rock'
-    elif player_choice == 'p':
-        player_choice = 'paper'
-    elif player_choice == 's':
-        player_choice = 'scissors'
-    if player_choice == 'quit':
-        print_slow("Thanks for playing! Final scores:")
-        display_scores()
-        break
-    if player_choice not in choices:
-        print_slow("Invalid choice. Please try again.")
-        continue
+def play(player_choice):
+    global rounds_played
     computer_choice = get_computer_choice()
-    print_slow(f"Computer chose: {computer_choice}")
     result = determine_winner(player_choice, computer_choice)
     rounds_played += 1
-    print_slow(result)
-    display_scores()
+    result_label.config(text=f"Computer chose: {computer_choice}\n{result}")
+    update_scores()
+
+def update_scores():
+    score_label.config(text=f"Player Score: {player_score}\nComputer Score: {computer_score}\nRounds Played: {rounds_played}")
+
+def quit_game():
+    messagebox.showinfo("Game Over", f"Thanks for playing!\nFinal scores:\nPlayer: {player_score}\nComputer: {computer_score}\nRounds: {rounds_played}")
+    root.destroy()
+
+# --- GUI Setup ---
+root = tk.Tk()
+root.title("Rock Paper Scissors")
+root.geometry("350x300")
+
+welcome_label = tk.Label(root, text="Welcome to Rock, Paper, Scissors!", font=("Arial", 14))
+welcome_label.pack(pady=10)
+
+score_label = tk.Label(root, text="Player Score: 0\nComputer Score: 0\nRounds Played: 0", font=("Arial", 12))
+score_label.pack(pady=5)
+
+result_label = tk.Label(root, text="Make your move!", font=("Arial", 12))
+result_label.pack(pady=10)
+
+button_frame = tk.Frame(root)
+button_frame.pack(pady=10)
+
+rock_btn = tk.Button(button_frame, text="Rock", width=10, command=lambda: play('rock'))
+rock_btn.grid(row=0, column=0, padx=5)
+
+paper_btn = tk.Button(button_frame, text="Paper", width=10, command=lambda: play('paper'))
+paper_btn.grid(row=0, column=1, padx=5)
+
+scissors_btn = tk.Button(button_frame, text="Scissors", width=10, command=lambda: play('scissors'))
+scissors_btn.grid(row=0, column=2, padx=5)
+
+quit_btn = tk.Button(root, text="Quit", width=10, command=quit_game)
+quit_btn.pack(pady=10)
+
+root.mainloop()
